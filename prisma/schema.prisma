@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Game {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  xTeamName      String   // Column team (AFC)
+  yTeamName      String   // Row team (NFC)
+  xTeamLogo      String?  // URL to team logo
+  yTeamLogo      String?  // URL to team logo
+  pricePerSquare Int      // cents
+  closed         Boolean  @default(false)
+  xNumbers       String?  // "3,7,1,9,0,5,2,8,4,6" (shuffled when closed)
+  yNumbers       String?  // "8,2,5,0,4,9,1,6,3,7"
+  quarterPayouts String   @default("25,25,25,25")
+  paymentLink    String?  // Venmo/PayPal/CashApp link
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  plays          Play[]
+  scores         Score[]
+  squares        Square[]
+}
+
+model Play {
+  id        String   @id @default(cuid())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  squares   Square[]
+
+  @@index([gameId])
+}
+
+model Square {
+  id       String @id @default(cuid())
+  playId   String
+  play     Play   @relation(fields: [playId], references: [id], onDelete: Cascade)
+  gameId   String
+  game     Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  position Int    // 1-100
+
+  @@unique([gameId, position]) // Prevents same square being claimed twice in a game
+  @@index([playId])
+  @@index([gameId])
+}
+
+model Score {
+  id              String  @id @default(cuid())
+  gameId          String
+  game            Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  quarter         Int     // 1-4
+  xScore          Int
+  yScore          Int
+  winningSquareId String?
+
+  @@unique([gameId, quarter])
+  @@index([gameId])
+}
