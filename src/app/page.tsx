@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { GameCard } from "@/components/game";
 
+export const dynamic = "force-dynamic";
+
 async function getGames() {
   const games = await prisma.game.findMany({
     include: {

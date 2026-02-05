@@ -3,6 +3,8 @@ import Link from "next/link";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/game-utils";
+
+export const dynamic = "force-dynamic";
 import { logout } from "@/app/actions/auth";
 
 async function getGames() {
