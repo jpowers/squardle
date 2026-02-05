@@ -1,5 +1,13 @@
 import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { Prisma } from "@prisma/client";
+
+// Minimal error class that mimics Prisma's unique constraint error
+class PrismaUniqueConstraintError extends Error {
+  code: string;
+  constructor(message: string, code: string) {
+    super(message);
+    this.code = code;
+  }
+}
 
 // Mock the modules before importing the action
 jest.mock("@/lib/prisma", () => ({
@@ -69,13 +77,9 @@ describe("selectSquares - Concurrent Submission Handling", () => {
   it("returns error when square is already taken (unique constraint violation)", async () => {
     // Simulate Prisma unique constraint violation (P2002)
     // This happens when two users try to claim the same square
-    const uniqueConstraintError = new Prisma.PrismaClientKnownRequestError(
+    const uniqueConstraintError = new PrismaUniqueConstraintError(
       "Unique constraint failed on the fields: (`gameId`,`position`)",
-      {
-        code: "P2002",
-        clientVersion: "5.0.0",
-        meta: { target: ["gameId", "position"] },
-      }
+      "P2002"
     );
 
     (mockPrisma.$transaction as jest.Mock).mockRejectedValue(uniqueConstraintError);
@@ -104,9 +108,9 @@ describe("selectSquares - Concurrent Submission Handling", () => {
         });
       } else {
         // Second call (User B) fails - square already taken
-        throw new Prisma.PrismaClientKnownRequestError(
+        throw new PrismaUniqueConstraintError(
           "Unique constraint failed",
-          { code: "P2002", clientVersion: "5.0.0" }
+          "P2002"
         );
       }
     });
@@ -181,9 +185,9 @@ describe("selectSquares - Concurrent Submission Handling", () => {
 
   it("handles multiple squares with partial conflict", async () => {
     // User selects [10, 20, 30] but square 20 was just taken
-    const uniqueConstraintError = new Prisma.PrismaClientKnownRequestError(
+    const uniqueConstraintError = new PrismaUniqueConstraintError(
       "Unique constraint failed",
-      { code: "P2002", clientVersion: "5.0.0" }
+      "P2002"
     );
 
     (mockPrisma.$transaction as jest.Mock).mockRejectedValue(uniqueConstraintError);

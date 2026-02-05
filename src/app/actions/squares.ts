@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { shuffleNumbers } from "@/lib/game-utils";
 import { pusher, getGameChannel } from "@/lib/pusher-server";
@@ -119,8 +118,9 @@ export async function selectSquares(
   } catch (error) {
     // Handle unique constraint violation (someone else took the square)
     if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
+      error instanceof Error &&
+      "code" in error &&
+      (error as { code: string }).code === "P2002"
     ) {
       return { error: "One or more squares were just taken. Please try again." };
     }
