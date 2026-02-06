@@ -55,13 +55,20 @@ export default async function GamePage({
         <p className="text-base-content/60 mb-2">
           {game.name} &bull; {formatCurrency(game.pricePerSquare)} per square
         </p>
-        <p className="text-sm text-base-content/50">
+        <div className="flex flex-wrap justify-center gap-2 mt-2">
           {(() => {
             const payouts = parsePayouts(game.quarterPayouts);
             const totalPool = game.pricePerSquare * 100;
-            return `Q1: ${formatCurrency(totalPool * payouts[0] / 100)}, Q2: ${formatCurrency(totalPool * payouts[1] / 100)}, Q3: ${formatCurrency(totalPool * payouts[2] / 100)}, Q4: ${formatCurrency(totalPool * payouts[3] / 100)}`;
+            return (
+              <>
+                <span className="badge badge-lg font-semibold">Q1: {formatCurrency(totalPool * payouts[0] / 100)}</span>
+                <span className="badge badge-lg font-semibold">Q2: {formatCurrency(totalPool * payouts[1] / 100)}</span>
+                <span className="badge badge-lg font-semibold">Q3: {formatCurrency(totalPool * payouts[2] / 100)}</span>
+                <span className="badge badge-lg font-semibold">Q4: {formatCurrency(totalPool * payouts[3] / 100)}</span>
+              </>
+            );
           })()}
-        </p>
+        </div>
 
         <div className="flex flex-col items-center justify-center gap-3 mb-4">
           {game.closed ? (

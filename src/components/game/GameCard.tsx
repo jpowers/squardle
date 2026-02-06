@@ -24,9 +24,12 @@ export function GameCard({ game, squareCount }: GameCardProps) {
         <p className="text-sm text-base-content/70">
           {formatCurrency(game.pricePerSquare)} per square
         </p>
-        <p className="text-xs text-base-content/60">
-          Q1: {formatCurrency(totalPool * payouts[0] / 100)}, Q2: {formatCurrency(totalPool * payouts[1] / 100)}, Q3: {formatCurrency(totalPool * payouts[2] / 100)}, Q4: {formatCurrency(totalPool * payouts[3] / 100)}
-        </p>
+        <div className="flex flex-wrap gap-1 mt-1">
+          <span className="badge badge-sm font-medium">Q1: {formatCurrency(totalPool * payouts[0] / 100)}</span>
+          <span className="badge badge-sm font-medium">Q2: {formatCurrency(totalPool * payouts[1] / 100)}</span>
+          <span className="badge badge-sm font-medium">Q3: {formatCurrency(totalPool * payouts[2] / 100)}</span>
+          <span className="badge badge-sm font-medium">Q4: {formatCurrency(totalPool * payouts[3] / 100)}</span>
+        </div>
         <div className="flex justify-between items-center mt-2">
           <span className="text-sm">
             {game.closed ? (
