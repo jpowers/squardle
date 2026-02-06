@@ -68,6 +68,9 @@ export default async function AdminGamePage({
           <Link href={`/game/${game.id}`} className="btn btn-ghost btn-sm">
             View Public Page
           </Link>
+          <Link href={`/admin/game/${game.id}/edit`} className="btn btn-info btn-sm">
+            Edit Game
+          </Link>
           {game.closed && (
             <Link
               href={`/admin/game/${game.id}/scores`}

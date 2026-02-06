@@ -113,3 +113,100 @@ export async function deleteGame(gameId: string): Promise<void> {
   await prisma.game.delete({ where: { id: gameId } });
   redirect("/admin");
 }
+
+const updateGameSchema = z.object({
+  gameId: z.string().min(1),
+  name: z.string().min(1, "Name is required"),
+  xTeamName: z.string().min(1, "Column team name is required"),
+  yTeamName: z.string().min(1, "Row team name is required"),
+  xTeamLogo: z.string().url().optional().or(z.literal("")),
+  yTeamLogo: z.string().url().optional().or(z.literal("")),
+  pricePerSquare: z
+    .string()
+    .transform((val) => Math.round(parseFloat(val) * 100))
+    .refine((val) => val > 0, "Price must be greater than 0"),
+  paymentLink: z.string().url().optional().or(z.literal("")),
+  q1Payout: z.string().transform((val) => parseInt(val, 10)),
+  q2Payout: z.string().transform((val) => parseInt(val, 10)),
+  q3Payout: z.string().transform((val) => parseInt(val, 10)),
+  q4Payout: z.string().transform((val) => parseInt(val, 10)),
+});
+
+export async function updateGame(
+  _prevState: { error?: string } | null,
+  formData: FormData
+): Promise<{ error?: string } | null> {
+  const admin = await isAdmin();
+  if (!admin) {
+    return { error: "Unauthorized" };
+  }
+
+  const rawData = {
+    gameId: formData.get("gameId"),
+    name: formData.get("name"),
+    xTeamName: formData.get("xTeamName"),
+    yTeamName: formData.get("yTeamName"),
+    xTeamLogo: formData.get("xTeamLogo"),
+    yTeamLogo: formData.get("yTeamLogo"),
+    pricePerSquare: formData.get("pricePerSquare"),
+    paymentLink: formData.get("paymentLink"),
+    q1Payout: formData.get("q1Payout"),
+    q2Payout: formData.get("q2Payout"),
+    q3Payout: formData.get("q3Payout"),
+    q4Payout: formData.get("q4Payout"),
+  };
+
+  const parsed = updateGameSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const {
+    gameId,
+    name,
+    xTeamName,
+    yTeamName,
+    xTeamLogo,
+    yTeamLogo,
+    pricePerSquare,
+    paymentLink,
+    q1Payout,
+    q2Payout,
+    q3Payout,
+    q4Payout,
+  } = parsed.data;
+
+  const totalPayout = q1Payout + q2Payout + q3Payout + q4Payout;
+  if (totalPayout !== 100) {
+    return { error: `Payouts must total 100% (currently ${totalPayout}%)` };
+  }
+
+  const existing = await prisma.game.findUnique({ where: { id: gameId } });
+  if (!existing) {
+    return { error: "Game not found" };
+  }
+
+  // Check if name is taken by another game
+  const nameConflict = await prisma.game.findFirst({
+    where: { name, id: { not: gameId } },
+  });
+  if (nameConflict) {
+    return { error: "A game with this name already exists" };
+  }
+
+  await prisma.game.update({
+    where: { id: gameId },
+    data: {
+      name,
+      xTeamName,
+      yTeamName,
+      xTeamLogo: xTeamLogo || null,
+      yTeamLogo: yTeamLogo || null,
+      pricePerSquare,
+      paymentLink: paymentLink || null,
+      quarterPayouts: `${q1Payout},${q2Payout},${q3Payout},${q4Payout}`,
+    },
+  });
+
+  redirect(`/admin/game/${gameId}`);
+}
