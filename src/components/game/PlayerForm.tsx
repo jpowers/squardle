@@ -2,20 +2,17 @@
 
 import { useActionState } from "react";
 import { selectSquares } from "@/app/actions/squares";
-import { PaymentButton } from "./PaymentButton";
 
 type PlayerFormProps = {
   gameId: string;
   selectedPositions: number[];
   pricePerSquare: number;
-  paymentLink?: string | null;
 };
 
 export function PlayerForm({
   gameId,
   selectedPositions,
   pricePerSquare,
-  paymentLink,
 }: PlayerFormProps) {
   const [state, formAction, isPending] = useActionState(selectSquares, null);
 
@@ -114,15 +111,6 @@ export function PlayerForm({
           "Confirm Squares"
         )}
       </button>
-
-      {paymentLink && selectedPositions.length > 0 && (
-        <PaymentButton
-          paymentLink={paymentLink}
-          amount={formattedTotal}
-          amountCents={totalCost}
-          className="w-full"
-        />
-      )}
     </form>
   );
 }

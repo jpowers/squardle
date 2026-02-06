@@ -55,7 +55,6 @@ export function PlayPageClient({
               gameId={gameId}
               selectedPositions={selectedPositions}
               pricePerSquare={pricePerSquare}
-              paymentLink={paymentLink}
             />
           </div>
         </div>

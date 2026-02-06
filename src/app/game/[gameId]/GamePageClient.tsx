@@ -162,7 +162,6 @@ export function GamePageClient({
             gameId={gameId}
             selectedPositions={selectedPositions}
             pricePerSquare={pricePerSquare}
-            paymentLink={paymentLink}
           />
         </div>
         <form method="dialog" className="modal-backdrop">
