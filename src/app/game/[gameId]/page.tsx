@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { buildGridData, formatCurrency } from "@/lib/game-utils";
+import { buildGridData, formatCurrency, parsePayouts } from "@/lib/game-utils";
 import { GameWithPlays } from "@/lib/types";
 import { GamePageClient } from "./GamePageClient";
 import { ClosedGameView } from "./ClosedGameView";
@@ -52,8 +52,15 @@ export default async function GamePage({
           <span className="text-base-content/50 mx-2">@</span>
           <span className="text-slate-800">{game.xTeamName}</span>
         </h1>
-        <p className="text-base-content/60 mb-4">
+        <p className="text-base-content/60 mb-2">
           {game.name} &bull; {formatCurrency(game.pricePerSquare)} per square
+        </p>
+        <p className="text-sm text-base-content/50">
+          {(() => {
+            const payouts = parsePayouts(game.quarterPayouts);
+            const totalPool = game.pricePerSquare * 100;
+            return `Q1: ${formatCurrency(totalPool * payouts[0] / 100)}, Q2: ${formatCurrency(totalPool * payouts[1] / 100)}, Q3: ${formatCurrency(totalPool * payouts[2] / 100)}, Q4: ${formatCurrency(totalPool * payouts[3] / 100)}`;
+          })()}
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 mb-4">
