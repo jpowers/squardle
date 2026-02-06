@@ -75,6 +75,9 @@ export default async function GamePage({
             <span className="badge badge-warning badge-lg">Game Closed - Numbers Assigned</span>
           ) : (
             <>
+              <p className="text-lg font-semibold text-success">
+                {availableSquares} squares available
+              </p>
               <p className="text-base-content/70">
                 Click on empty squares to select them for purchase
               </p>
