@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Game } from "@prisma/client";
-import { formatCurrency } from "@/lib/game-utils";
+import { formatCurrency, parsePayouts } from "@/lib/game-utils";
 
 type GameCardProps = {
   game: Game & { _count: { plays: number } };
@@ -9,6 +9,8 @@ type GameCardProps = {
 
 export function GameCard({ game, squareCount }: GameCardProps) {
   const availableSquares = 100 - squareCount;
+  const payouts = parsePayouts(game.quarterPayouts);
+  const totalPool = game.pricePerSquare * 100; // 100 squares
 
   return (
     <Link href={`/game/${game.id}`} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
@@ -21,6 +23,9 @@ export function GameCard({ game, squareCount }: GameCardProps) {
         </div>
         <p className="text-sm text-base-content/70">
           {formatCurrency(game.pricePerSquare)} per square
+        </p>
+        <p className="text-xs text-base-content/60">
+          Q1: {formatCurrency(totalPool * payouts[0] / 100)}, Q2: {formatCurrency(totalPool * payouts[1] / 100)}, Q3: {formatCurrency(totalPool * payouts[2] / 100)}, Q4: {formatCurrency(totalPool * payouts[3] / 100)}
         </p>
         <div className="flex justify-between items-center mt-2">
           <span className="text-sm">
